@@ -4,17 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_app/controllers/auth_controller.dart';
-
-
-late FirebaseApp defaultApp;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  defaultApp = await Firebase.initializeApp();
-  // runApp(const GalleryApp());
-  await FirebaseFirestore.instance.clearPersistence();
+  await Firebase.initializeApp();
 
   Get.put<AuthController>(AuthController());
 
@@ -32,13 +26,12 @@ class GalleryApp extends StatelessWidget {
       builder: (context, child) {
         return GlobalLoaderOverlay(
           child: GetMaterialApp(
-            title: 'Gallery APP',
+            title: 'Digital Sky',
             theme: ThemeData(
-              primarySwatch: Colors.deepPurple,
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
               useMaterial3: true,
             ),
             home: const LoadingWidget(),
-            localizationsDelegates: const [],
           ),
         );
       },
@@ -51,13 +44,10 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      alignment: Alignment.center,
-      child: SizedBox(
-        width: 400,
-        height: 400,
-        // child: Image.asset('assets/jomin_logo_with_tag.png', width: 600),
+    return const Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: CircularProgressIndicator(color: Colors.white),
       ),
     );
   }

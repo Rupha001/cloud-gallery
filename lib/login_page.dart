@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
           children: [
             Text(
               "Digital Sky",
-              style: Theme.of(Get.context!).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 20),
             SignInButton(

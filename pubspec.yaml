@@ -1,0 +1,51 @@
+name: my_flutter_app
+description: Digital Sky - A Flutter app that backs up your phone gallery to Firebase Cloud Storage.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^3.0.0
+  firebase_auth: ^5.0.0
+  cloud_firestore: ^5.0.0
+  firebase_storage: ^12.0.0
+
+  # Google Sign-In
+  google_sign_in: ^6.2.1
+  sign_in_button: ^3.2.0
+
+  # State Management
+  get: ^4.6.6
+
+  # Photo Access
+  photo_manager: ^3.0.0
+  photo_manager_image_provider: ^2.0.0
+
+  # UI
+  flutter_screenutil: ^5.9.0
+  loader_overlay: ^4.0.0
+
+  # App Restart
+  flutter_phoenix: ^1.1.0
+
+  # Local Storage
+  shared_preferences: ^2.2.3
+
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  # assets:
+  #   - assets/default_profile.png

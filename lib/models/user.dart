@@ -16,8 +16,8 @@ class UserData {
   ) {
     Map? data = doc.data() as Map?;
     return UserData(
-      displayName: data!['userID'],
-      profileUrl: data['fullName'],
+      displayName: data!['displayName'],
+      profileUrl: data['profileUrl'],
       useremail: data['useremail'],
     );
   }

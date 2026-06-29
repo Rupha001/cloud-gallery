@@ -56,7 +56,6 @@ class GalleryService {
 
       return true;
     } catch (e) {
-      print('Error in checkAndUploadImage: $e');
       return false;
     }
   }
@@ -72,7 +71,6 @@ class GalleryService {
           .map((doc) => doc['imageHash'] as String)
           .toSet();
     } catch (e) {
-      print('Error in getUploadedImages: $e');
       return {};
     }
   }
@@ -83,7 +81,6 @@ class GalleryService {
       await _auth.signOut();
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -100,13 +97,11 @@ class GalleryService {
       final doc =
           await firestore.collection('users').doc(_auth.currentUser!.uid).get();
       if (!doc.exists) {
-        print('doc no exists');
         return null;
       }
       _currentUser = UserData.fromFirestore(doc);
       return _currentUser;
     } catch (e) {
-      print(e);
       return null;
     }
   }

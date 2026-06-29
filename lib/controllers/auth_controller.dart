@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,8 @@ import 'package:my_flutter_app/services/gallery_service.dart';
 class AuthController extends GetxController {
   late Rx<User?> firebaseUser;
   late Rx<UserData?> currentUser;
+  StreamSubscription? _userListener;
+
   bool _isProfileEditEnabled = false;
   bool get isProfileEditEnabled => _isProfileEditEnabled;
   set isProfileEditEnabled(bool value) {
@@ -21,41 +24,38 @@ class AuthController extends GetxController {
 
   @override
   void onReady() async {
-    //run every time auth state changes
     firebaseUser = Rx<User?>(FirebaseAuth.instance.currentUser);
     firebaseUser.bindStream(FirebaseAuth.instance.userChanges());
     ever(firebaseUser, handleAuthChanged);
     super.onReady();
   }
 
-  handleAuthChanged(User? user) async {
-    //get user data from firestore
-    if (user == null) {
-      print('user is null, navigate to login page');
-      // if the user is not found then the user is navigated to the Register Screen
-      Get.offAll(() => LoginPage());
-    } else {
-      GalleryService().listenCurrentUser().listen((doc) {
-        currentUser.value = (UserData.fromFirestore(doc));
+  @override
+  void onClose() {
+    _userListener?.cancel();
+    super.onClose();
+  }
 
+  Future<void> handleAuthChanged(User? user) async {
+    if (user == null) {
+      Get.offAll(() => LoginPage());
+      return;
+    }
+
+    currentUser = Rx<UserData?>(await GalleryService().getCurrentUser());
+
+    if (currentUser.value != null) {
+      _userListener?.cancel();
+      _userListener = GalleryService().listenCurrentUser().listen((doc) {
+        currentUser.value = UserData.fromFirestore(doc);
         update();
       });
-      // if the user exists and logged in the the user is navigated to the Home Screen
-      currentUser = Rx<UserData?>(await GalleryService().getCurrentUser());
 
-      if (currentUser.value != null) {
-        print('user is logged in,intialize gallery');
-        //init receipt controller once login is valid
-        Get.put<GalleryController>(GalleryController());
-        print('init gallery controller...');
-
-        print('naviagte to homepage');
-        Get.offAll(() => const HomePage());
-        update();
-      } else {
-        print('user is null, return to loginpage');
-        Get.offAll(() => LoginPage());
-      }
+      Get.put<GalleryController>(GalleryController());
+      Get.offAll(() => const HomePage());
+      update();
+    } else {
+      Get.offAll(() => LoginPage());
     }
   }
 
@@ -77,7 +77,7 @@ class AuthController extends GetxController {
             await FirebaseAuth.instance.signInWithCredential(credential);
 
         final User? user = userCredential.user;
-        UserData data = UserData(
+        final UserData data = UserData(
             displayName: user?.displayName,
             profileUrl: user?.photoURL,
             useremail: user?.email);
@@ -92,23 +92,19 @@ class AuthController extends GetxController {
         }
       }
     } catch (e) {
-      print('Error during Google Sign-In: $e');
       Get.snackbar("Login Failed", "Unable to login. Please try again.");
     }
   }
 
-  // void refreshUser() async {
-  //   currentUser = Rx<UserData?>(await GalleryService().getCurrentUser());
-  // }
-
   void logout() async {
+    _userListener?.cancel();
     await GalleryService().signOut();
     await Get.delete<GalleryController>(force: true);
 
-    Phoenix.rebirth(Get.context!); // Restarting app
-    // Get.reset();
     firebaseUser.value = null;
     currentUser.value = null;
     _isProfileEditEnabled = false;
+
+    Phoenix.rebirth(Get.context!);
   }
 }
